@@ -28,15 +28,10 @@ public class NotificationService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        if (remoteMessage.getData().size() > 0) {
-            if (remoteMessage.getNotification()!= null) {
-                title = remoteMessage.getNotification().getTitle();
-                msg = remoteMessage.getNotification().getBody();
-                Notify(title, msg);
-            } else {
-                Log.e("Notification","Notification is null");
-            }
-        }
+        title = remoteMessage.getData().get("title");
+        msg = remoteMessage.getData().get("message");
+        Notify(title, msg);
+        Log.v("Notification", "Notification Rec");
     }
 
     @Override
@@ -66,7 +61,7 @@ public class NotificationService extends FirebaseMessagingService {
         Intent intent = new Intent(this, Add_Cert.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         PendingIntent pi = PendingIntent.getActivity(this, 1,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                intent, PendingIntent.FLAG_IMMUTABLE);
         builder.setContentIntent(pi);
 
         NotificationManagerCompat mcompact = NotificationManagerCompat.from(this);

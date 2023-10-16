@@ -8,7 +8,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
 public interface ApiInterface {
-    @Headers({"Authorization: key=AAAAQE_HRrk:APA91bFvHMNif0Mi8obEoMMH-2wYNx3rKbbCwE79b6lJKgNKVn_OCCSnRLNd_wFrm0H5qdOmvdgVymaSFsP0vOyavB4sUPgg5KTgmwo3ZLfzT1KqV1MPIVYlu-vENvsj1ah-oF3Xst4-"
+    @Headers({"Authorization: key=AAAAQE_HRrk:APA91bGh0F5__bbjIjFfN3cfMFrGPoBCArZ_Vv7CA6G1l6Vuume3UpXvWOE3R_Sta9iZ8mXUYFRbz_97XWxQYBCLOPW3v_hKZ2dGKG3TVsbb6X-eqEyj67YBOCRByyZtVAqG_OFi-iqd"
             ,"Content-Type: application/json"})
     @POST("fcm/send")
     Call<PushNotification> sendNotification(@Body PushNotification notification);

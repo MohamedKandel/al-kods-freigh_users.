@@ -34,6 +34,7 @@ import com.mkandeel.gmarek.Fragments.Frag_six;
 import com.mkandeel.gmarek.Fragments.Frag_three;
 import com.mkandeel.gmarek.Fragments.Frag_two;
 import com.mkandeel.gmarek.NotificationHandler.ApiUtils;
+import com.mkandeel.gmarek.NotificationHandler.NotificationData;
 import com.mkandeel.gmarek.NotificationHandler.PushNotification;
 import com.mkandeel.gmarek.databinding.ActivityBrowseFilesBinding;
 import com.mkandeel.gmarek.models.Certificate;
@@ -74,50 +75,52 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
         binding = ActivityBrowseFilesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        fragment_index = 1;
-        upload = false;
-        listGomrok = new ArrayList<>();
-        listAgri = new ArrayList<>();
-        listFact = new ArrayList<>();
-        listFloor = new ArrayList<>();
-        listFood = new ArrayList<>();
-        listHayaa = new ArrayList<>();
+        if (Tools.isNetworkAvailable(this)) {
 
-        connection = DBConnection.getInstance(this);
+            fragment_index = 1;
+            upload = false;
+            listGomrok = new ArrayList<>();
+            listAgri = new ArrayList<>();
+            listFact = new ArrayList<>();
+            listFloor = new ArrayList<>();
+            listFood = new ArrayList<>();
+            listHayaa = new ArrayList<>();
 
-        sReference = FirebaseStorage.getInstance().getReference("Certificates");
-        /////////////////////////////////////////////////////////////
-        String UUID = connection.getUserID();
-        // replace with fetching UUID from Local DB
-        //FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        //String UUID = mAuth.getCurrentUser().getUid();
-        ////////////////////////////////////////////////////////////
-        mycertificate = getIntent().getParcelableExtra("cert_data");
+            connection = DBConnection.getInstance(this);
 
-        showFragment();
+            sReference = FirebaseStorage.getInstance().getReference("Certificates");
+            /////////////////////////////////////////////////////////////
+            String UUID = connection.getUserID();
+            // replace with fetching UUID from Local DB
+            //FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            //String UUID = mAuth.getCurrentUser().getUid();
+            ////////////////////////////////////////////////////////////
+            mycertificate = getIntent().getParcelableExtra("cert_data");
 
-        binding.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*if (!upload) {
-                    fragment_index++;
-                    showFragment();
-                } else {
+            showFragment();
 
-                    // upload Files to firebase
-                    uploadDataToFirebase(UUID,MergeLists(listGomrok,
-                            listFloor,listHayaa,listFood,
-                            listAgri,listFact));
+            binding.btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!upload) {
+                        fragment_index++;
+                        showFragment();
+                    } else {
+                        // upload Files to firebase
+                        uploadDataToFirebase(UUID, MergeLists(listGomrok,
+                                listFloor, listHayaa, listFood,
+                                listAgri, listFact));
 
-                }*/
-                SendMsg();
+                    }
+                }
+            });
 
+            if (fragment_index == 5) {
+                binding.btn.setText("رفع الملفات");
+                upload = true;
             }
-        });
-
-        if (fragment_index == 5) {
-            binding.btn.setText("رفع الملفات");
-            upload = true;
+        } else {
+            Tools.showDialog(this);
         }
 
     }
@@ -132,29 +135,36 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                                     .subscribeToTopic(TOPIC).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            Log.d("TOPIC","Subscribed");
+                                            Log.d("TOPIC", "Subscribed");
                                             ApiUtils.getClient().sendNotification(new PushNotification(
-                                                    new com.mkandeel.gmarek.NotificationHandler.NotificationData("title", "body"),
+                                                    new NotificationData("تم اضافة شهادة", "تم اضافة شهادة جديدة في التطبيق"),
                                                     "/topics/adminsTopic"
                                             )).enqueue(new Callback<PushNotification>() {
                                                 @Override
                                                 public void onResponse(Call<PushNotification> call, Response<com.mkandeel.gmarek.NotificationHandler.PushNotification> response) {
                                                     if (response.isSuccessful()) {
-                                                        Log.d("Notification","Sent Notification");
+                                                        Log.d("Notification", "Sent Notification");
 
                                                         FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
                                                     } else {
                                                         Toast.makeText(BrowseFiles.this, "Failed to send to admin", Toast.LENGTH_SHORT).show();
-                                                        Log.e("Notification","Failed Sent Notification");
+                                                        Log.e("Notification", "Failed Sent Notification");
                                                     }
                                                 }
 
                                                 @Override
                                                 public void onFailure(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Throwable t) {
                                                     Toast.makeText(BrowseFiles.this, t.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                                                    Log.e("Notification","Error sending");
+                                                    Log.e("Notification", "Error sending");
                                                 }
                                             });
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d("TOPIC", "Failed");
+                                            Log.d("TOPIC", e.getMessage().toString());
                                         }
                                     });
                         }
@@ -170,34 +180,35 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            Log.d("TOPIC","mohamed Subscribed");
-                                            ApiUtils.getClient().sendNotification(new com.mkandeel.gmarek.NotificationHandler.PushNotification(
-                                                    new com.mkandeel.gmarek.NotificationHandler.NotificationData("title", "body"),
-                                                    TOPIC
-                                            )).enqueue(new Callback<com.mkandeel.gmarek.NotificationHandler.PushNotification>() {
-                                                @Override
-                                                public void onResponse(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Response<com.mkandeel.gmarek.NotificationHandler.PushNotification> response) {
-                                                    if (response.isSuccessful()) {
+                                            Log.d("TOPIC", "mohamed Subscribed");
+                                            ApiUtils.getClient().sendNotification(new PushNotification(
+                                                            new NotificationData("تم اضافة شهادة", "تم اضافة شهادة جديدة في التطبيق")
+                                                            , "/topics/adminsTopic"))
+                                                    .enqueue(new Callback<PushNotification>() {
+                                                        @Override
+                                                        public void onResponse(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Response<com.mkandeel.gmarek.NotificationHandler.PushNotification> response) {
+                                                            if (response.isSuccessful()) {
+                                                                Log.d("Notification", "Notification send");
+                                                                FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
+                                                            } else {
+                                                                Log.d("Notification", "Notification failed");
+                                                                Toast.makeText(BrowseFiles.this, "Failed to send to admin", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
 
-                                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
-                                                    } else {
-                                                        Toast.makeText(BrowseFiles.this, "Failed to send to admin", Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onFailure(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Throwable t) {
-                                                    Toast.makeText(BrowseFiles.this, t.getMessage().toString(), Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                                        @Override
+                                                        public void onFailure(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Throwable t) {
+                                                            Toast.makeText(BrowseFiles.this, t.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
 
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-                                            Log.d("TOPIC","failed");
-                                            Log.d("TOPIC",e.getMessage().toString());
+                                            Log.d("TOPIC", "failed");
+                                            Log.d("TOPIC", e.getMessage().toString());
                                         }
                                     });
 
@@ -284,10 +295,13 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
         StorageReference mReference = sReference.child(userKey + "/");
         urls = new ArrayList<>();
         int size = 0;
+        int size2 = 0;
         for (List<Uri> uris : list) {
             size++;
             int finalI = size;
             for (int i = 0; i < uris.size(); i++) {
+                size2++;
+                int finalJ = size2;
                 StorageReference sr = mReference.child(System.currentTimeMillis() + "" +
                         "." + getFileExtn(uris.get(i)));
 
@@ -326,34 +340,12 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                 if (task.isSuccessful()) {
-                                    if (finalI == list.get(list.size() - 1).size()) {
+                                    if (finalI == list.get(list.size() - 1).size()
+                                            && finalJ == uris.size() - 1) {
                                         Toast.makeText(getApplicationContext(),
                                                         "تم رفع الملفات بنجاح", Toast.LENGTH_SHORT)
                                                 .show();
                                         SendMsg();
-//                                        FirebaseMessaging.getInstance()
-//                                                .subscribeToTopic(TOPIC)
-//                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                                    @Override
-//                                                    public void onComplete(@NonNull Task<Void> task) {
-//                                                        if (task.isSuccessful()) {
-//                                                            Log.d("Topic", "Subscribed");
-//                                                            PushNotification pn = new PushNotification(new NotificationData("تم رفع شهادة جديدة", "تم رفع الشهادة"),
-//                                                                    TOPIC);
-//                                                            new Sending().sendNotification(pn);
-//
-//                                                            FirebaseMessaging.getInstance()
-//                                                                    .unsubscribeFromTopic(TOPIC).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                                                        @Override
-//                                                                        public void onComplete(@NonNull Task<Void> task) {
-//                                                                            if (task.isSuccessful()) {
-//                                                                                Log.d("Topic", "unsubscribed");
-//                                                                            }
-//                                                                        }
-//                                                                    });
-//                                                        }
-//                                                    }
-//                                                });
                                     }
                                 }
                             }
