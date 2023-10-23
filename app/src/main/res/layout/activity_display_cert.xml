@@ -299,7 +299,6 @@
                 android:textSize="22sp"
                 android:backgroundTint="@color/design_default_color_primary"
                 android:layout_margin="15sp"/>
-
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

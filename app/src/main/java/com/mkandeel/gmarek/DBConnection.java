@@ -191,4 +191,24 @@ public class DBConnection extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.rawQuery("delete from users where userKey = ?",new String[]{userKey});
     }
+
+    public void deleteCertificate(String cert_num) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("certificates","cert_num = ?",new String[]{cert_num});
+        db.delete("files","cert_num = ?",new String[]{cert_num});
+        /*db.rawQuery("delete from certificates where cert_num = '"+cert_num+"'",
+                null);
+        db.rawQuery("delete from files where cert_num = '"+cert_num+"'",
+                null);*/
+    }
+
+    public void deleteAllCertificate() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        /*db.rawQuery("delete from certificates",
+                null);
+        db.rawQuery("delete from files",
+                null);*/
+        db.delete("certificates",null,null);
+        db.delete("files",null,null);
+    }
 }

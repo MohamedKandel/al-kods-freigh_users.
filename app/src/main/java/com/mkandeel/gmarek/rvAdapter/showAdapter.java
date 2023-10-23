@@ -2,14 +2,17 @@ package com.mkandeel.gmarek.rvAdapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mkandeel.gmarek.ClickListener;
 import com.mkandeel.gmarek.R;
+import com.mkandeel.gmarek.Show;
 import com.mkandeel.gmarek.models.customModel;
 
 import java.util.Collections;
@@ -20,6 +23,7 @@ public class showAdapter extends RecyclerView.Adapter<certHolder> {
     private Context context;
     private ClickListener listener;
     private ItemClicked clicked;
+    public certHolder holder;
 
     public showAdapter(List<customModel> list,Context context) {
         this.list = list;
@@ -54,6 +58,28 @@ public class showAdapter extends RecyclerView.Adapter<certHolder> {
                 }
             }
         });
+
+        holder.view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(context, v);
+                popupMenu.inflate(R.menu.menu);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (clicked!=null) {
+                            clicked.onItemLongClickListener(holder.txt_num.getText().toString(),
+                                    item.getItemId());
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
+
+                return true;
+            }
+        });
+
     }
 
     public void setOnClickListener(ItemClicked clicked) {
@@ -65,6 +91,7 @@ public class showAdapter extends RecyclerView.Adapter<certHolder> {
         return list.size();
     }
     public interface ItemClicked {
-        void onItemClickListener(String txt,int position);
+        void onItemClickListener(String str,int position);
+        void onItemLongClickListener(String str,int itemId);
     }
 }

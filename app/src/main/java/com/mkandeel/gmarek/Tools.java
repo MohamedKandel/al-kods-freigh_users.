@@ -2,14 +2,25 @@ package com.mkandeel.gmarek;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Tools {
@@ -75,5 +86,20 @@ public class Tools {
         }
         return accessCode.toString();
     }
+
+    public static String getFileExtn(Context context,Uri uri) {
+        ContentResolver cr = context.getContentResolver();
+        MimeTypeMap mtm = MimeTypeMap.getSingleton();
+        return mtm.getExtensionFromMimeType(cr.getType(uri));
+    }
+
+    public static List<String> mergeLists(List<String>... lists) {
+        List<String> newList = new ArrayList<>();
+        for (List<String> list : lists) {
+            newList.addAll(list);
+        }
+        return newList;
+    }
+
 
 }

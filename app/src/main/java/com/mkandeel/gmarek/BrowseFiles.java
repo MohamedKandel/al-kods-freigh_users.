@@ -90,6 +90,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
     private int i = 0;
     private Map<String,List<Uri>> listMap;
     private Map<Integer,String> fragmentsIndx;
+    private LoadingDialog dialog;
 
 
     @Override
@@ -106,6 +107,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
 
             fragment_index = 1;
             upload = false;
+            dialog = new LoadingDialog(this);
             listGomrok = new ArrayList<>();
             listAgri = new ArrayList<>();
             listFact = new ArrayList<>();
@@ -125,12 +127,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
             connection = DBConnection.getInstance(this);
 
             sReference = FirebaseStorage.getInstance().getReference("Certificates");
-            /////////////////////////////////////////////////////////////
             String UUID = connection.getUserID();
-            // replace with fetching UUID from Local DB
-            //FirebaseAuth mAuth = FirebaseAuth.getInstance();
-            //String UUID = mAuth.getCurrentUser().getUid();
-            ////////////////////////////////////////////////////////////
             mycertificate = getIntent().getParcelableExtra("cert_data");
 
             showFragment();
@@ -152,26 +149,15 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                             String keyForAnother = fragmentsIndx.get(fragment_index);
                             if (listMap.get(keyForAnother) != null) {
                                 int count = Objects.requireNonNull(listMap.get(keyForAnother)).size();
-                                //Toast.makeText(BrowseFiles.this, count+"", Toast.LENGTH_SHORT).show();
                                 binding.txtChoosen.setText("تم اختيار " + count + " ملفات");
                             } else {
                                 binding.txtChoosen.setText("");
                             }
-
                             showFragment();
                             upload = false;
                         } else {
                             binding.btnNext.setText("رفع الملفات");
                             upload = true;
-
-                        /*Toast.makeText(BrowseFiles.this, "" + list.size(),
-                                Toast.LENGTH_SHORT).show();
-                        uploadDataToFirebase(UUID, MergeLists(listGomrok,
-                                listFloor, listHayaa, listFood,
-                                listAgri, listFact, listRelease,
-                                listComp, listBill, listFoodHealth,
-                                listAgriOffers, listHealth));*/
-
                         }
                     }
                 }
@@ -504,19 +490,14 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
         return newList;
     }
 
-    private String getFileExtn(Uri uri) {
-        ContentResolver cr = getContentResolver();
-        MimeTypeMap mtm = MimeTypeMap.getSingleton();
-        return mtm.getExtensionFromMimeType(cr.getType(uri));
-    }
-
     private void uploadDataToFirebase(String userKey, List<Uri> list) {
+        dialog.startDialog();
         StorageReference mReference = sReference.child(mycertificate.getCert_num() + "/");
         urls = new ArrayList<>();
         for (Uri uri:list) {
 
             StorageReference sr = mReference.child(System.currentTimeMillis()+"."+
-                    getFileExtn(uri));
+                    Tools.getFileExtn(BrowseFiles.this,uri));
             sr.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -535,6 +516,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                             uploadDataToRTDB(modal);
                             i++;
                             if (i==list.size()) {
+                                dialog.closeDialog();
                                 Toast.makeText(BrowseFiles.this, "تم رفع الملفات بنجاح", Toast.LENGTH_SHORT).show();
                                 SendMsg();
                             }
@@ -545,6 +527,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            dialog.closeDialog();
                             Toast.makeText(BrowseFiles.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });

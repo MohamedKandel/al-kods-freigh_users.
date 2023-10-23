@@ -12,7 +12,7 @@ public class certHolder extends RecyclerView.ViewHolder {
     TextView txt_num;
     TextView txt_date;
     TextView txt_trans;
-    View view;
+    public View view;
 
     public certHolder(@NonNull View itemView) {
         super(itemView);

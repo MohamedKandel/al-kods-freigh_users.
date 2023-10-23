@@ -15,6 +15,8 @@ public class Modal {
     private List<String> list;
     private String userKey;
 
+    public Modal(){}
+
     public String getUserKey() {
         return userKey;
     }
