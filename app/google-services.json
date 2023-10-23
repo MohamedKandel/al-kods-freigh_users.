@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "276216366777",
+    "firebase_url": "https://gmarek-ea6ab-default-rtdb.firebaseio.com",
+    "project_id": "gmarek-ea6ab",
+    "storage_bucket": "gmarek-ea6ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276216366777:android:883c30dbb9f07e95c67d68",
+        "android_client_info": {
+          "package_name": "com.mkandeel.gmarek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCrdr981YZg07cOh-qBx40oisl4XuVt2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276216366777:android:36d36bd2b9d29743c67d68",
+        "android_client_info": {
+          "package_name": "com.mkandeel.kodsadmin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCrdr981YZg07cOh-qBx40oisl4XuVt2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

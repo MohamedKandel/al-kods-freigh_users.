@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">شهادات القدس فريت</string>
+    <string name="register">إنشاء حساب</string>
+    <string name="email">البريد الالكتروني</string>
+    <string name="password">كلمة المرور</string>
+    <string name="display">اسم المستخدم</string>
+    <string name="access_code">رمز الوصول</string>
+    <string name="loading">جارِ التحميل … برجاء الانتظار</string>
+    <string name="login">تسجيل الدخول</string>
+    <string name="sorryText">نأسف لإبلاغك انه تم اكتشاف تسجيل دخول لهذا الحساب من هاتف اخر\n</string>
+    <string name="securityTxt">لذلك ولحماية خصوصية الشركة تم ايقاف حسابك مؤقتًا\n</string>
+    <string name="solveTxt">لحل هذه المشكلة توجه إلى احد المديرين</string>
+    <string name="options">خيارات المستخدم</string>
+    <string name="Add_new">تسجيل شهادة جديدة</string>
+    <string name="cert_num">رقم الشهادة</string>
+    <string name="cert_date">تاريخ الشهادة</string>
+    <string name="comp_name">اسم الشركة</string>
+    <string name="comp_num">رقم فاتورة الشركة</string>
+    <string name="country_name">دولة الاستيراد</string>
+    <string name="trans_name">ميناء الاستيراد</string>
+    <string name="build_fact">تم عمل المنشأ</string>
+    <string name="model_13">تم اخذ نموذج 13</string>
+    <string name="offers">العروض على الشهادة</string>
+    <string name="txt_gomrok">ايصال جمرك</string>
+    <string name="txt_floor">ايصال ارضيات</string>
+    <string name="txt_hayaa">ايصال هيئة</string>
+    <string name="txt_food">ايصال سلامة غذاء</string>
+    <string name="txt_agri">ايصال زراعة</string>
+    <string name="txt_fact">ايصال منشأ</string>
+    <string name="browse_file">اختيار ملف</string>
+    <string name="txt_save">حفظ البيانات</string>
+    <string name="txt_move">رفع الملفات</string>
+    <string name="txt_next">التالي</string>
+    <string name="download">تحميل الملفات المرفقة</string>
+    <string name="closed">عذرا تم انتهاء الفترة المجانية المسموح بها لتجربة التطبيق</string>
+    <string name="txt_prev">السابق</string>
+    <string name="txt_del">حذف الملفات المرفقة للايصال</string>
+</resources>

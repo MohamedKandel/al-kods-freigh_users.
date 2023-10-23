@@ -1,0 +1,17 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Gmarek" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@color/primary</item>
+    </style>
+
+    <style name="Theme.Gmarek" parent="Base.Theme.Gmarek" />
+    
+    <style name="Theme.CardView" parent="Base.CardView">
+        <item name="cardCornerRadius">30sp</item>
+        <item name="borderWidth">2sp</item>
+        <item name="android:padding">20sp</item>
+    </style>
+
+</resources>
