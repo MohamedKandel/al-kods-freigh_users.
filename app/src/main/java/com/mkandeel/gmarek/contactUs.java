@@ -48,4 +48,12 @@ public class contactUs extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(contactUs.this,userOpt.class);
+        startActivity(intent);
+        finish();
+    }
 }

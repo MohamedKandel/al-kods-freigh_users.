@@ -74,13 +74,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mainFun() {
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
+        //binding = ActivityMainBinding.inflate(getLayoutInflater());
+        //setContentView(binding.getRoot());
         connection = DBConnection.getInstance(this);
-        mAuth = FirebaseAuth.getInstance();
-        dialog = LoadingDialog.getInstance(MainActivity.this);
-
         String user = connection.getUserID();
         //FirebaseUser user = mAuth.getCurrentUser();
         if (!user.equals("")) {
@@ -88,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         } else {
+            binding = ActivityMainBinding.inflate(getLayoutInflater());
+            setContentView(binding.getRoot());
+            mAuth = FirebaseAuth.getInstance();
+            dialog = LoadingDialog.getInstance(MainActivity.this);
+
             binding.btnReg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

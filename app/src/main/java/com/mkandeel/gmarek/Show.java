@@ -29,14 +29,20 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mkandeel.gmarek.NotificationHandler.ApiUtils;
+import com.mkandeel.gmarek.NotificationHandler.NotificationData;
+import com.mkandeel.gmarek.NotificationHandler.PushNotification;
 import com.mkandeel.gmarek.databinding.ActivityShowBinding;
 import com.mkandeel.gmarek.models.Certificate;
 import com.mkandeel.gmarek.models.Modal;
@@ -44,7 +50,17 @@ import com.mkandeel.gmarek.models.customModel;
 import com.mkandeel.gmarek.rvAdapter.showAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Show extends AppCompatActivity {
 
@@ -57,6 +73,7 @@ public class Show extends AppCompatActivity {
     private List<Uri> mlist;
     private String mystr;
     private boolean isModel13;
+    private String TOPIC = "adminsTopic";
     private List<String> urls = new ArrayList<>();
     private List<String> mUrls = new ArrayList<>();
 
@@ -118,7 +135,7 @@ public class Show extends AppCompatActivity {
                 }
 
                 @Override
-                public void onItemLongClickListener(String str, int itemId) {
+                public void onItemLongClickListener(String str, int itemId,int index) {
                     mystr = str;
                     if (itemId == R.id.add_13) {
                         Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -133,10 +150,7 @@ public class Show extends AppCompatActivity {
                         arl.launch(mIntent);
                         isModel13 = false;
                     } else {
-                        //connection.deleteCertificate(str);
-                        //list = connection.getCustomCertData();
-                        //adapter.notifyDataSetChanged();
-                        deleteCertByNum(str);
+                        deleteCertByNum(str,index);
                     }
                 }
             });
@@ -159,19 +173,45 @@ public class Show extends AppCompatActivity {
                 });
     }
 
-    private void deleteCertByNum(String cert_num) {
+    @SuppressLint("NotifyDataSetChanged")
+    private void deleteCertByNum(String cert_num, int index) {
+        //dialog.startDialog();
+        connection.deleteCertificate(cert_num);
+        list.remove(index);
+        Log.e("ListSize",list.size()+"");
+        adapter.notifyDataSetChanged();
+
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Database")
                 .child("Certificates");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    for (DataSnapshot ds: snapshot.getChildren()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
                         Modal modal = ds.getValue(Modal.class);
-                        if (modal!=null) {
+                        if (modal != null) {
                             if (modal.getCert_num().equals(cert_num)) {
                                 mUrls = modal.getList();
                             }
+                        }
+                    }
+                    if (mUrls.size() > 0) {
+                        for (String url : mUrls) {
+                            StorageReference sr = FirebaseStorage.getInstance()
+                                    .getReferenceFromUrl(url);
+                            sr.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            reference.child(cert_num).removeValue();
+                                            //Toast.makeText(Show.this, "تم الحذف من ال storage", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(Show.this, "حدث خطأ", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         }
                     }
                 }
@@ -179,47 +219,16 @@ public class Show extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
-
-        if (mUrls.size() > 0) {
-            for (String url:mUrls) {
-                StorageReference sr = FirebaseStorage.getInstance()
-                        .getReferenceFromUrl(url);
-                sr.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        reference.child(cert_num).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @SuppressLint("NotifyDataSetChanged")
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(Show.this, "تم حذف الشهادة بنجاح", Toast.LENGTH_SHORT).show();
-                                    connection.deleteCertificate(cert_num);
-                                    list = connection.getCustomCertData();
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-                        });
-
-                        //Toast.makeText(Show.this, "تم الحذف من ال storage", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(Show.this, "حدث خطأ", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            }
-        }
 
     }
 
     private void uploadExtrasToStorage(String cert_num, List<Uri> list) {
+        dialog.startDialog();
         StorageReference sRef = FirebaseStorage.getInstance()
-                .getReference("Certificates").child(cert_num);
+                .getReference("Certificates")
+                .child(cert_num);
         for (Uri uri : list) {
             StorageReference mRef = sRef.child(System.currentTimeMillis() +
                     "." + Tools.getFileExtn(getApplicationContext(), uri));
@@ -227,48 +236,49 @@ public class Show extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if (task.isSuccessful()) {
-                        Log.d("Upload", "Uploading successfull");
                         mRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                urls.add(uri.toString());
-                                //////////////////////////////////////////
-                                DatabaseReference dbRef = FirebaseDatabase
-                                        .getInstance().getReference("Database")
-                                        .child("Certificates");
+                                DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                                        .getReference("Database")
+                                        .child("Certificates")
+                                        .child(cert_num)
+                                        .child("list");
                                 dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        if (snapshot.exists()) {
-                                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                                Modal modal = ds.getValue(Modal.class);
-                                                if (modal != null) {
-                                                    if (modal.getCert_num().equals(cert_num)) {
-                                                        List<String> oldUrls = modal.getList();
-                                                        urls = Tools.mergeLists(oldUrls, urls);
-                                                        Modal model =
-                                                                new Modal(modal.getUserKey(),
-                                                                        modal.getCert_num(), modal.getCert_date(),
-                                                                        modal.getComp_name(), modal.getComp_num(),
-                                                                        modal.getCountry(), modal.getTrans(),
-                                                                        modal.isModel_13(), modal.isFact(),
-                                                                        modal.getOffers(), urls);
-
-                                                        uploadDataToRTDB(model);
-                                                    }
-                                                } else {
-                                                    Toast.makeText(Show.this, "null", Toast.LENGTH_SHORT).show();
-                                                }
+                                        for (DataSnapshot ds : snapshot.getChildren()) {
+                                            String key = ds.getKey();
+                                            if (key != null) {
+                                                s.add(Integer.parseInt(key));
                                             }
                                         }
+                                        int max_key = Collections.max(s);
+                                        max_key++;
+                                        s.add(max_key);
+                                        Log.e("myNextKey",String.valueOf(max_key));
+                                        dbRef.child(String.valueOf(max_key)).setValue(uri.toString());
+                                        i++;
+                                        if (i == list.size()) {
+                                            dialog.closeDialog();
+                                            Toast.makeText(Show.this, "تم اضافة الملفات بنجاح", Toast.LENGTH_SHORT).show();
+                                            SendMsg();
+                                        }
+                                        
                                     }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError error) {
-
+                                        dialog.closeDialog();
+                                        Toast.makeText(Show.this, "حدث خطأ ما...", Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                                /////////////////////////////////////////
+                                /*DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                                        .getReference("Database")
+                                        .child("Certificates")
+                                        .child(cert_num)
+                                        .child("list");
+                                        dbRef.push().setValue(uri.toString());*/
                             }
                         });
                     }
@@ -277,9 +287,105 @@ public class Show extends AppCompatActivity {
         }
     }
 
-    private void uploadDataToRTDB(Modal model) {
-        DatabaseReference reference = FirebaseDatabase.getInstance()
-                .getReference("Database").child("Certificates");
-        reference.child(model.getCert_num()).setValue(model);
+    Set<Integer> s = new HashSet<>();
+    private int i = 0;
+    private void SendMsg() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            FirebaseAuth.getInstance()
+                    .signInAnonymously().addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                        @Override
+                        public void onSuccess(AuthResult authResult) {
+                            FirebaseMessaging.getInstance()
+                                    .subscribeToTopic(TOPIC).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d("TOPIC", "Subscribed");
+                                            ApiUtils.getClient().sendNotification(new PushNotification(
+                                                    new NotificationData("تم اضافة ملفات جديدة لشهادة", "تم اضافة ملفات جديدة لشهادة موجودة في التطبيق"),
+                                                    "/topics/adminsTopic"
+                                            )).enqueue(new Callback<PushNotification>() {
+                                                @Override
+                                                public void onResponse(Call<PushNotification> call, Response<PushNotification> response) {
+                                                    if (response.isSuccessful()) {
+                                                        Log.d("Notification", "Sent Notification");
+
+                                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
+                                                    } else {
+                                                        Toast.makeText(Show.this, "فشل الارسال للمديرين", Toast.LENGTH_SHORT).show();
+                                                        Log.e("Notification", "Failed Sent Notification");
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Throwable t) {
+                                                    Toast.makeText(Show.this, t.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                    Log.e("Notification", "Error sending");
+                                                }
+                                            });
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d("TOPIC", "Failed");
+                                            Log.d("TOPIC", e.getMessage().toString());
+                                        }
+                                    });
+                        }
+                    });
+
+
+        } else {
+            FirebaseMessaging.getInstance()
+                    .getToken().addOnSuccessListener(new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d("TOPIC", "mohamed Subscribed");
+                                            ApiUtils.getClient().sendNotification(new PushNotification(
+                                                            new NotificationData("تم اضافة ملفات جديدة لشهادة", "تم اضافة ملفات جديدة لشهادة موجودة في التطبيق")
+                                                            , "/topics/adminsTopic"))
+                                                    .enqueue(new Callback<PushNotification>() {
+                                                        @Override
+                                                        public void onResponse(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Response<com.mkandeel.gmarek.NotificationHandler.PushNotification> response) {
+                                                            if (response.isSuccessful()) {
+                                                                Log.d("Notification", "Notification send");
+                                                                FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
+                                                            } else {
+                                                                Log.d("Notification", "Notification failed");
+                                                                Toast.makeText(Show.this, "فشل الارسال للمديرين", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(Call<com.mkandeel.gmarek.NotificationHandler.PushNotification> call, Throwable t) {
+                                                            Toast.makeText(Show.this, t.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d("TOPIC", "failed");
+                                            Log.d("TOPIC", e.getMessage().toString());
+                                        }
+                                    });
+
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(Show.this, userOpt.class);
+        startActivity(intent);
+        finish();
     }
 }

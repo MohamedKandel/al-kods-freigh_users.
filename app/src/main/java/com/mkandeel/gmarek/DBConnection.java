@@ -196,10 +196,6 @@ public class DBConnection extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("certificates","cert_num = ?",new String[]{cert_num});
         db.delete("files","cert_num = ?",new String[]{cert_num});
-        /*db.rawQuery("delete from certificates where cert_num = '"+cert_num+"'",
-                null);
-        db.rawQuery("delete from files where cert_num = '"+cert_num+"'",
-                null);*/
     }
 
     public void deleteAllCertificate() {

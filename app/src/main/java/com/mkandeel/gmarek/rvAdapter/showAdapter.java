@@ -69,7 +69,7 @@ public class showAdapter extends RecyclerView.Adapter<certHolder> {
                     public boolean onMenuItemClick(MenuItem item) {
                         if (clicked!=null) {
                             clicked.onItemLongClickListener(holder.txt_num.getText().toString(),
-                                    item.getItemId());
+                                    item.getItemId(),index);
                         }
                         return true;
                     }
@@ -92,6 +92,6 @@ public class showAdapter extends RecyclerView.Adapter<certHolder> {
     }
     public interface ItemClicked {
         void onItemClickListener(String str,int position);
-        void onItemLongClickListener(String str,int itemId);
+        void onItemLongClickListener(String str,int itemId,int index);
     }
 }

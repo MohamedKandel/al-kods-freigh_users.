@@ -289,7 +289,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
 
                                                         FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
                                                     } else {
-                                                        Toast.makeText(BrowseFiles.this, "Failed to send to admin", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(BrowseFiles.this, "فشل الارسال للمديرين", Toast.LENGTH_SHORT).show();
                                                         Log.e("Notification", "Failed Sent Notification");
                                                     }
                                                 }
@@ -334,7 +334,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                                                                 FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
                                                             } else {
                                                                 Log.d("Notification", "Notification failed");
-                                                                Toast.makeText(BrowseFiles.this, "Failed to send to admin", Toast.LENGTH_SHORT).show();
+                                                                Toast.makeText(BrowseFiles.this, "فشل الارسال للمديرين", Toast.LENGTH_SHORT).show();
                                                             }
                                                         }
 
@@ -532,67 +532,6 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                         }
                     });
         }
-        /*StorageReference mReference = sReference.child(mycertificate.getCert_num() + "/");
-        urls = new ArrayList<>();
-        int size = 0;
-        int size2 = 0;
-        for (List<Uri> uris : list) {
-            size++;
-            int finalI = size;
-            for (int i = 0; i < uris.size(); i++) {
-                size2++;
-                int finalJ = size2;
-                Log.d("Uploading","list number "+size + "\nindex number "+size2);
-                StorageReference sr = mReference.child(System.currentTimeMillis() + "" +
-                        "." + getFileExtn(uris.get(i)));
-
-                sr.putFile(uris.get(i)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                sr.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        urls.add(uri.toString());
-                                        connection.insertIntoFiles(mycertificate.getCert_num(), uri.toString());
-                                        Log.d("Inserting_cert_num", mycertificate.getCert_num());
-                                        Log.d("Inserting_uri", uri.toString());
-
-                                        DatabaseReference reference = FirebaseDatabase.getInstance()
-                                                .getReference("Database").child("Certificates");
-                                        Modal modal = new Modal(userKey, mycertificate.getCert_num(),
-                                                mycertificate.getCert_date(), mycertificate.getCert_name(),
-                                                mycertificate.getComp_num(), mycertificate.getCountry(),
-                                                mycertificate.getTrans(), mycertificate.isModel_13(),
-                                                mycertificate.isChk_fact(), mycertificate.getOffers(), urls);
-                                        reference.child(mycertificate.getCert_num()).setValue(modal);
-                                    }
-                                });
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getApplicationContext(),
-                                                "فشل رفع الملف", Toast.LENGTH_SHORT)
-                                        .show();
-                            }
-                        })
-                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (finalI == list.get(list.size() - 1).size()
-                                            && finalJ == uris.size() - 1) {
-                                        Toast.makeText(getApplicationContext(),
-                                                        "تم رفع الملفات بنجاح", Toast.LENGTH_SHORT)
-                                                .show();
-                                        SendMsg();
-                                    }
-                                }
-                            }
-                        });
-            }
-        }*/
     }
 
     private void uploadDataToRTDB(Modal model) {
@@ -605,5 +544,13 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
     public void onFileChooseListener(int count) {
         binding.txtChoosen.setText("تم اختيار " + count + " ملفات");
         //Toast.makeText(this, count+"", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(BrowseFiles.this,userOpt.class);
+        startActivity(intent);
+        finish();
     }
 }
