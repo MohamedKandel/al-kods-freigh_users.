@@ -79,7 +79,7 @@ public class Frag_ten extends Fragment {
                                 listFoodHealth.add(uri);
                                 count++;
                             }
-
+                            choose.onFileChooseListener(count);
                             //choosen.setText("تم اختيار " + count + " ملفات");
 
                         }

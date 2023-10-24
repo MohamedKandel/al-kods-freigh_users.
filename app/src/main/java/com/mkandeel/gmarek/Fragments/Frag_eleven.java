@@ -54,7 +54,7 @@ public class Frag_eleven extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_frag_one, container, false);
-        //TextView choosen = view.findViewById(R.id.txt_choosen);
+
         TextView txt = view.findViewById(R.id.txt_num);
         //////////////////////////////////////////////
 
@@ -79,10 +79,7 @@ public class Frag_eleven extends Fragment {
                                 listAgriOffers.add(uri);
                                 count++;
                             }
-
                             choose.onFileChooseListener(count);
-                            //choosen.setText("تم اختيار " + count + " ملفات");
-
                         }
                     }
                 }

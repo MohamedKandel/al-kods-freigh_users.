@@ -124,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String value = snapshot.getValue(String.class);
                 if (value == null) {
-                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT)
-                            .show();
+                    /*Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT)
+                            .show();*/
                 } else {
                     if (value.equals(access)) {
                         //////////////////////////////////////////////////////////////////////
@@ -160,55 +160,23 @@ public class MainActivity extends AppCompatActivity {
                                                                     ref.setValue(newAccessCode).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                 @Override
                                                                                 public void onSuccess(Void unused) {
-                                                                                    Toast.makeText(MainActivity.this, "changed", Toast.LENGTH_SHORT).show();
+                                                                                    //Toast.makeText(MainActivity.this, "changed", Toast.LENGTH_SHORT).show();
+                                                                                    Log.d("Access Code","Changed");
                                                                                 }
                                                                             })
                                                                             .addOnFailureListener(new OnFailureListener() {
                                                                                 @Override
                                                                                 public void onFailure(@NonNull Exception e) {
-                                                                                    Toast.makeText(MainActivity.this, "Failed to change\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                                    Log.d("Access Code","Failed to Change");
                                                                                 }
                                                                             });
                                                                 }
                                                             }
                                                         });
                                             }
-                                            /*DatabaseReference reference = FirebaseDatabase.getInstance()
-                                                    .getReference("Database").child("users");
-                                            UserObj obj = UserObj.getInstance(UUID, userName, mail, getDeviceID(),
-                                                    "Active");
-                                            reference.child(UUID).setValue(obj)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                Intent intent = new Intent(MainActivity.this, Login.class);
-                                                                startActivity(intent);
-                                                                finish();
-                                                            }
-                                                        }
-                                                    });*/
-                                            //FirebaseUser user = mAuth.getCurrentUser();
-                                            //////////////////////////////////////////////
-
-                                            //AddUserObject(mAuth.getUid(), userName, mail, getDeviceID(), "Active");
-                                            //////////////////////////////////////////////
-                                            /////////////update access code/////////////////////
-
-                                            //////////////////////////////////////////////////////
-                                            //CheckAccessCode(UUID, userName, mail, pass);
-                                        } /*else {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "فشل تسجيل المستخدم" +
-                                                            "\nحاول مرة اخرى", Toast.LENGTH_SHORT).show();
-                                        }*/
+                                        }
                                     }
                                 });
-                        //////////////////////////////////////////////////////////////////////
-                        /*Intent intent = new Intent(MainActivity.this, Login.class);
-                        startActivity(intent);
-                        finish();*/
-
                     } else {
                         dialog.closeDialog();
                         Toast.makeText(getApplicationContext(), "رمز الوصول خاطئ",
@@ -244,10 +212,6 @@ public class MainActivity extends AppCompatActivity {
                         .show();
             }
         });
-    }
-
-    private void updateUser(String userName) {
-
     }
 
     private void CheckAccessCode(String userKey, String userName, String mail, String pass) {
