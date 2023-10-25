@@ -258,6 +258,7 @@ public class Show extends AppCompatActivity {
                                         s.add(max_key);
                                         Log.e("myNextKey",String.valueOf(max_key));
                                         dbRef.child(String.valueOf(max_key)).setValue(uri.toString());
+                                        connection.insertIntoFiles(cert_num,uri.toString());
                                         i++;
                                         if (i == list.size()) {
                                             dialog.closeDialog();
@@ -273,12 +274,6 @@ public class Show extends AppCompatActivity {
                                         Toast.makeText(Show.this, "حدث خطأ ما...", Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                                /*DatabaseReference dbRef = FirebaseDatabase.getInstance()
-                                        .getReference("Database")
-                                        .child("Certificates")
-                                        .child(cert_num)
-                                        .child("list");
-                                        dbRef.push().setValue(uri.toString());*/
                             }
                         });
                     }

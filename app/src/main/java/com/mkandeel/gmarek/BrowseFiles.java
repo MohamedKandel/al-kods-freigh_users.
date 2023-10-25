@@ -183,61 +183,73 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                 public void onClick(View v) {
                     switch (fragment_index) {
                         case 1:
+                            listGomrok.clear();
                             listGomrok = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 2:
+                            listFloor.clear();
                             listFloor = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 3:
+                            listHayaa.clear();
                             listHayaa = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 4:
+                            listFood.clear();
                             listFood = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 5:
+                            listAgri.clear();
                             listAgri = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 6:
+                            listFact.clear();
                             listFact = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 7:
+                            listRelease.clear();
                             listRelease = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 8:
+                            listComp.clear();
                             listComp = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 9:
+                            listBill.clear();
                             listBill = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 10:
+                            listFoodHealth.clear();
                             listFoodHealth = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 11:
+                            listAgriOffers.clear();
                             listAgriOffers = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");
                             break;
                         case 12:
+                            listHealth.clear();
                             listHealth = new ArrayList<>();
                             Toast.makeText(BrowseFiles.this, "تم المسح بنجاح", Toast.LENGTH_SHORT).show();
                             binding.txtChoosen.setText("");

@@ -214,57 +214,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void CheckAccessCode(String userKey, String userName, String mail, String pass) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference reference = database.getReference("Database").child("accessCode");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String value = snapshot.getValue(String.class);
-
-                if (value == null) {
-                    Toast.makeText(getApplicationContext(), "null", Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    if (value.equals(access)) {
-                        AddUserObject(userKey, userName, mail, getDeviceID(), "Active");
-
-                    } else {
-                        Toast.makeText(getApplicationContext(), "رمز الوصول خاطئ",
-                                Toast.LENGTH_SHORT).show();
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        AuthCredential credential = EmailAuthProvider.getCredential(mail, pass);
-                        if (user != null) {
-                            String UserID = user.getUid();
-                            user.reauthenticate(credential)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            user.delete()
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                connection.deleteUser(UserID);
-                                                                Log.d("TAG", "User account deleted.");
-                                                            }
-                                                        }
-                                                    });
-                                        }
-                                    });
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT)
-                        .show();
-            }
-        });
-    }
-
     @SuppressLint("HardwareIds")
     private String getDeviceID() {
         return Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
