@@ -6,9 +6,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -18,12 +20,17 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Tools {
+
+    private static SharedPreferences sp;
+    private static SharedPreferences.Editor edit;
+
     public static boolean isEmpty(String ... strs) {
         boolean flag = false;
         for (String str:strs) {
@@ -91,6 +98,55 @@ public class Tools {
         ContentResolver cr = context.getContentResolver();
         MimeTypeMap mtm = MimeTypeMap.getSingleton();
         return mtm.getExtensionFromMimeType(cr.getType(uri));
+    }
+
+    public static void setNotificationValueToSP(boolean value,Context context) {
+        initSP(context);
+        edit.putBoolean("notification",value);
+        edit.commit();
+        edit.apply();
+    }
+
+    public static boolean getNotificationValueFromSP(Context context) {
+        initSP(context);
+        return sp.getBoolean("notification",false);
+    }
+
+    private static void initSP(Context context) {
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        edit = sp.edit();
+    }
+
+    public static void showNotificationDialog(Activity activity) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(activity);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        builder.setView(inflater.inflate(R.layout.request_notification_layout,null));
+        builder.setCancelable(false);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button btn_agree = dialog.findViewById(R.id.btn_agree);
+        Button btn_reject = dialog.findViewById(R.id.btn_rej);
+
+        btn_agree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                dialog.cancel();
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", activity.getApplicationContext().getPackageName(), null);
+                intent.setData(uri);
+                activity.startActivity(intent);
+            }
+        });
+
+        btn_reject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                dialog.cancel();
+            }
+        });
     }
 
     public static List<String> mergeLists(List<String>... lists) {

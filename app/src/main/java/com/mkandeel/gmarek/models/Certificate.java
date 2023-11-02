@@ -4,26 +4,51 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
+import com.google.firebase.database.PropertyName;
+
 public class Certificate implements Parcelable {
     private String cert_num;
     private String cert_date;
-    private String cert_name;
+    @PropertyName("comp_name")
+    private String comp_name;
     private String comp_num;
     private String country;
     private String trans;
     private String offers;
     private boolean model_13;
     private boolean chk_fact;
+    private String userKey;
 
     public Certificate(){}
 
 
-    public Certificate(String cert_num, String cert_date, String cert_name,
+    public String getUserKey() {
+        return userKey;
+    }
+
+    public void setUserKey(String userKey) {
+        this.userKey = userKey;
+    }
+
+    public Certificate(String userKey, String cert_num, String cert_date, String comp_name,
                        String comp_num, String country, String trans,
                        String offers, boolean model_13, boolean chk_fact) {
+        this.userKey = userKey;
         this.cert_num = cert_num;
         this.cert_date = cert_date;
-        this.cert_name = cert_name;
+        this.comp_name = comp_name;
+        this.comp_num = comp_num;
+        this.country = country;
+        this.trans = trans;
+        this.offers = offers;
+        this.model_13 = model_13;
+        this.chk_fact = chk_fact;
+    }
+
+    public Certificate(String cert_num, String cert_date, String comp_name, String comp_num, String country, String trans, String offers, boolean model_13, boolean chk_fact) {
+        this.cert_num = cert_num;
+        this.cert_date = cert_date;
+        this.comp_name = comp_name;
         this.comp_num = comp_num;
         this.country = country;
         this.trans = trans;
@@ -35,7 +60,7 @@ public class Certificate implements Parcelable {
     protected Certificate(Parcel in) {
         cert_num = in.readString();
         cert_date = in.readString();
-        cert_name = in.readString();
+        comp_name = in.readString();
         comp_num = in.readString();
         country = in.readString();
         trans = in.readString();
@@ -60,12 +85,12 @@ public class Certificate implements Parcelable {
         this.cert_date = cert_date;
     }
 
-    public String getCert_name() {
-        return cert_name;
+    public String getComp_name() {
+        return comp_name;
     }
 
-    public void setCert_name(String cert_name) {
-        this.cert_name = cert_name;
+    public void setComp_name(String cert_name) {
+        this.comp_name = cert_name;
     }
 
     public String getComp_num() {
@@ -137,7 +162,7 @@ public class Certificate implements Parcelable {
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(cert_num);
         dest.writeString(cert_date);
-        dest.writeString(cert_name);
+        dest.writeString(comp_name);
         dest.writeString(comp_num);
         dest.writeString(country);
         dest.writeString(trans);

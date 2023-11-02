@@ -37,4 +37,5 @@
     <string name="closed">عذرا تم انتهاء الفترة المجانية المسموح بها لتجربة التطبيق</string>
     <string name="txt_prev">السابق</string>
     <string name="txt_del">حذف الملفات المرفقة للايصال</string>
+    <string name="txt_upload">اضافة الشهادة بدون ملفات</string>
 </resources>

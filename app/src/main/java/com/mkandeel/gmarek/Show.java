@@ -35,6 +35,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
@@ -76,6 +77,8 @@ public class Show extends AppCompatActivity {
     private String TOPIC = "adminsTopic";
     private List<String> urls = new ArrayList<>();
     private List<String> mUrls = new ArrayList<>();
+    private boolean addModelOrFact;
+    private FirebaseListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,14 +89,11 @@ public class Show extends AppCompatActivity {
         if (Tools.isNetworkAvailable(this)) {
 
             connection = DBConnection.getInstance(this);
-            list = connection.getCustomCertData();
+            //list = connection.getCustomCertData();
             dialog = new LoadingDialog(this);
 
             mlist = new ArrayList<>();
 
-            adapter = new showAdapter(list, getApplicationContext());
-            binding.rvCert.setAdapter(adapter);
-            binding.rvCert.setLayoutManager(new LinearLayoutManager(this));
             /////////////////////////////////////////////////////////////////////
             ActivityResultLauncher<Intent> arl = registerForActivityResult(
                     new ActivityResultContracts.StartActivityForResult(),
@@ -115,51 +115,145 @@ public class Show extends AppCompatActivity {
                                     mlist.add(uri);
                                 }
                                 Log.d("my list", mlist + "");
-                                AddDataToCert(mystr, isModel13, true);
+                                if (addModelOrFact) {
+                                    AddDataToCert(mystr, isModel13, true);
+                                } else {
+                                    uploadExtrasToStorage(mystr,mlist);
+                                }
                             }
                         }
                     }
             );
             /////////////////////////////////////////////////////////////////////
+            //SearchForCertificates(UUID);
+            list = connection.getCustomCertData();
+
+            adapter = new showAdapter(list, getApplicationContext());
+            binding.rvCert.setAdapter(adapter);
+            binding.rvCert.setLayoutManager(new LinearLayoutManager(Show.this));
+            ///////////////////////////////////////////////////////////////////////
             adapter.setOnClickListener(new showAdapter.ItemClicked() {
                 @Override
                 public void onItemClickListener(String str, int position) {
                     Certificate cert = connection.getCertData(str);
-                    download_urls = connection.getFilesForCert(str);
+                    //download_urls = connection.getFilesForCert(str);
+                    //intent.putStringArrayListExtra("urls", download_urls);
                     Intent intent = new Intent(Show.this, DisplayCert.class);
-                    intent.putExtra("cert_list", cert);
-                    intent.putStringArrayListExtra("urls", download_urls);
                     intent.putExtra("num", str);
+                    intent.putExtra("cert_list", cert);
                     startActivity(intent);
                     finish();
                 }
 
                 @Override
-                public void onItemLongClickListener(String str, int itemId,int index) {
+                public void onItemLongClickListener(String str, int itemId, int index) {
                     mystr = str;
                     if (itemId == R.id.add_13) {
                         Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
                         mIntent.setType("*/*");
                         mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                         arl.launch(mIntent);
+                        addModelOrFact = true;
                         isModel13 = true;
                     } else if (itemId == R.id.add_fact) {
                         Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
                         mIntent.setType("*/*");
                         mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                         arl.launch(mIntent);
+                        addModelOrFact = true;
                         isModel13 = false;
+                    } else if (itemId == R.id.edit_files) {
+                        /*Intent mIntent = new Intent(Show.this,BrowseFiles.class);
+                        mIntent.putExtra("cert_num",str);
+                        startActivity(mIntent);*/
+                        Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                        mIntent.setType("*/*");
+                        mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                        addModelOrFact = false;
+                        arl.launch(mIntent);
                     } else {
-                        deleteCertByNum(str,index);
+                        //deleteCertByNum(str,index);
                     }
                 }
             });
+
+
         } else {
             Tools.showDialog(this);
         }
     }
 
     private void AddDataToCert(String cert_num, boolean isModel13, boolean value) {
+        String childName = isModel13 ? "model_13" : "fact";
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Database").child("Certificates")
+                .child(cert_num);
+        ref.child(childName).setValue(value)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        //uploadExtrasToStorage(cert_num, mlist);
+                        uploadExtrasToStorage(cert_num, mlist);
+                    }
+                });
+    }
+
+    private void uploadExtrasToStorage(String cert_num, List<Uri> list) {
+        StorageReference mReference = FirebaseStorage.getInstance()
+                .getReference("Certificates")
+                .child(cert_num);
+        final int[] k = {0};
+        for (Uri uri : list) {
+            StorageReference sr = mReference.child("Other")
+                    .child(System.currentTimeMillis() + "."
+                            + Tools.getFileExtn(Show.this, uri));
+            sr.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        k[0]++;
+                        if (k[0] == list.size()) {
+                            SendMsg();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    /*private void SearchForCertificates(String UUID) {
+        DatabaseReference reference = FirebaseDatabase
+                .getInstance().getReference("Database");
+        reference.child("Certificates");
+        Query query = reference.orderByChild("userKey").equalTo(UUID);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds: snapshot.getChildren()) {
+                        customModel model = ds.getValue(customModel.class);
+                        if (model!= null) {
+                            Log.e("Model Certificate", model.getCert_num());
+                            list.add(model);
+                        } else {
+                            Log.e("Model Certificate", "null");
+                        }
+                    }
+                    listener.onComplete(list);
+                } else {
+                    Toast.makeText(Show.this, "لا يوجد أية شهادات حتى الآن", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }*/
+
+    /*private void AddDataToCert(String cert_num, boolean isModel13, boolean value) {
         String childName = isModel13 ? "model_13" : "fact";
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReference("Database").child("Certificates")
@@ -191,7 +285,7 @@ public class Show extends AppCompatActivity {
                         Modal modal = ds.getValue(Modal.class);
                         if (modal != null) {
                             if (modal.getCert_num().equals(cert_num)) {
-                                mUrls = modal.getList();
+                                //mUrls = modal.getList();
                             }
                         }
                     }
@@ -224,7 +318,7 @@ public class Show extends AppCompatActivity {
 
     }
 
-    private void uploadExtrasToStorage(String cert_num, List<Uri> list) {
+    /*private void uploadExtrasToStorage(String cert_num, List<Uri> list) {
         dialog.startDialog();
         StorageReference sRef = FirebaseStorage.getInstance()
                 .getReference("Certificates")
@@ -280,10 +374,8 @@ public class Show extends AppCompatActivity {
                 }
             });
         }
-    }
+    }*/
 
-    Set<Integer> s = new HashSet<>();
-    private int i = 0;
     private void SendMsg() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             FirebaseAuth.getInstance()

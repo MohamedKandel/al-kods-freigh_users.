@@ -1,12 +1,17 @@
 package com.mkandeel.gmarek;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -73,6 +78,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void requestStoragePermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                android.Manifest.permission.POST_NOTIFICATIONS)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("السماح مطلوب")
+                    .setMessage("يتطلب تطبيق شهادات القدس فريت السماح بارسال اشعارات")
+                    .setPositiveButton("حسنًا", new DialogInterface.OnClickListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                                    306);
+                        }
+                    })
+                    .setNegativeButton("تجاهل", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            dialog.cancel();
+                        }
+                    })
+                    .setCancelable(false)
+                    .create().show();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    306);
+        }
+    }
+
     private void mainFun() {
         //binding = ActivityMainBinding.inflate(getLayoutInflater());
         //setContentView(binding.getRoot());
@@ -86,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             binding = ActivityMainBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestStoragePermission();
+            }
+
             mAuth = FirebaseAuth.getInstance();
             dialog = LoadingDialog.getInstance(MainActivity.this);
 
@@ -234,5 +275,22 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case 306: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Toast.makeText(this, "Permission Granted..", Toast.LENGTH_SHORT).show();
+                    Tools.setNotificationValueToSP(true,this);
+                } else {
+                    Tools.showNotificationDialog(this);
+                    //Toast.makeText(this, "Permission Denied..", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }

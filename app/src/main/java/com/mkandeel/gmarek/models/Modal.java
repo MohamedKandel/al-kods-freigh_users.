@@ -1,6 +1,7 @@
 package com.mkandeel.gmarek.models;
 
 import java.util.List;
+import java.util.Map;
 
 public class Modal {
     private String cert_num;
@@ -12,7 +13,6 @@ public class Modal {
     private boolean model_13;
     private boolean isFact;
     private String offers;
-    private List<String> list;
     private String userKey;
 
     public Modal(){}
@@ -25,7 +25,7 @@ public class Modal {
         this.userKey = userKey;
     }
 
-    public Modal(String userKey, String cert_num, String cert_date, String comp_name, String comp_num, String country, String trans, boolean model_13, boolean isFact, String offers, List<String> list) {
+    public Modal(String userKey, String cert_num, String cert_date, String comp_name, String comp_num, String country, String trans, boolean model_13, boolean isFact, String offers) {
         this.userKey = userKey;
         this.cert_num = cert_num;
         this.cert_date = cert_date;
@@ -36,7 +36,6 @@ public class Modal {
         this.model_13 = model_13;
         this.isFact = isFact;
         this.offers = offers;
-        this.list = list;
     }
 
     public String getCert_num() {
@@ -109,13 +108,5 @@ public class Modal {
 
     public void setOffers(String offers) {
         this.offers = offers;
-    }
-
-    public List<String> getList() {
-        return list;
-    }
-
-    public void setList(List<String> list) {
-        this.list = list;
     }
 }

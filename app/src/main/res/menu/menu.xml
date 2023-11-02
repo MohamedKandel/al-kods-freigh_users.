@@ -6,5 +6,7 @@
         android:title="اضافة منشأ"/>
     <item android:id="@+id/delete"
         android:title="حذف الشهادة"/>
+    <item android:id="@+id/edit_files"
+        android:title="المزيد"/>
 
 </menu>

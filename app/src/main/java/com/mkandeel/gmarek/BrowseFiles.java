@@ -65,7 +65,7 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
         Frag_six.FragmentInterActionListener, Frag_seven.FragmentInterActionListener,
         Frag_eight.FragmentInterActionListener, Frag_nine.FragmentInterActionListener,
         Frag_ten.FragmentInterActionListener, Frag_eleven.FragmentInterActionListener,
-        Frag_twelve.FragmentInterActionListener,onFileChoose {
+        Frag_twelve.FragmentInterActionListener, onFileChoose {
 
     private ActivityBrowseFilesBinding binding;
     private StorageReference sReference;
@@ -88,9 +88,10 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
     private boolean upload;
     private String TOPIC = "adminsTopic";
     private int i = 0;
-    private Map<String,List<Uri>> listMap;
-    private Map<Integer,String> fragmentsIndx;
+    private Map<String, List<Uri>> listMap;
+    private Map<Integer, String> fragmentsIndx;
     private LoadingDialog dialog;
+    private String returned_num;
 
 
     @Override
@@ -122,8 +123,6 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
             listHealth = new ArrayList<>();
             listFoodHealth = new ArrayList<>();
 
-            urls = new ArrayList<>();
-
             connection = DBConnection.getInstance(this);
 
             sReference = FirebaseStorage.getInstance().getReference("Certificates");
@@ -136,15 +135,9 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
                 @Override
                 public void onClick(View v) {
                     if (binding.btnNext.getText().equals("رفع الملفات")) {
-                        List<Uri> list = mergeLists(listGomrok,
-                                listFloor, listHayaa, listFood,
-                                listAgri, listFact, listRelease,
-                                listComp, listBill, listFoodHealth,
-                                listAgriOffers, listHealth);
-                        Log.d("lists", "list : " + list);
-                        uploadDataToFirebase(UUID,list);
+                        uploadFilesToStorage(UUID,listMap);
                     } else {
-                        if (fragment_index <= 10) {
+                        if (fragment_index <= 11) {
                             fragment_index++;
                             String keyForAnother = fragmentsIndx.get(fragment_index);
                             if (listMap.get(keyForAnother) != null) {
@@ -265,18 +258,191 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
     }
 
     private void FillMap() {
-        fragmentsIndx.put(1,"Gomrok");
-        fragmentsIndx.put(2,"Floor");
-        fragmentsIndx.put(3,"Hayaa");
-        fragmentsIndx.put(4,"Food");
-        fragmentsIndx.put(5,"Agri");
-        fragmentsIndx.put(6,"Fact");
-        fragmentsIndx.put(7,"Release");
-        fragmentsIndx.put(8,"Comp");
-        fragmentsIndx.put(9,"Bill");
-        fragmentsIndx.put(10,"FoodHealth");
-        fragmentsIndx.put(11,"AgriOffers");
-        fragmentsIndx.put(12,"Health");
+        fragmentsIndx.put(1, "Gomrok");
+        fragmentsIndx.put(2, "Floor");
+        fragmentsIndx.put(3, "Hayaa");
+        fragmentsIndx.put(4, "Food");
+        fragmentsIndx.put(5, "Agri");
+        fragmentsIndx.put(6, "Fact");
+        fragmentsIndx.put(7, "Release");
+        fragmentsIndx.put(8, "Comp");
+        fragmentsIndx.put(9, "Bill");
+        fragmentsIndx.put(10, "FoodHealth");
+        fragmentsIndx.put(11, "AgriOffers");
+        fragmentsIndx.put(12, "Health");
+    }
+
+
+
+    private void showFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        Fragment frag = null;
+        switch (fragment_index) {
+            case 1:
+                frag = new Frag_one();
+                break;
+            case 2:
+                frag = new Frag_two();
+                break;
+            case 3:
+                frag = new Frag_three();
+                break;
+            case 4:
+                frag = new Frag_four();
+                break;
+            case 5:
+                frag = new Frag_five();
+                break;
+            case 6:
+                frag = new Frag_six();
+                break;
+            case 7:
+                frag = new Frag_seven();
+                break;
+            case 8:
+                frag = new Frag_eight();
+                break;
+            case 9:
+                frag = new Frag_nine();
+                break;
+            case 10:
+                frag = new Frag_ten();
+                break;
+            case 11:
+                frag = new Frag_eleven();
+                break;
+            case 12:
+                frag = new Frag_twelve();
+                break;
+        }
+        if (frag != null) {
+            ft.replace(R.id.frm, frag);
+            ft.commit();
+        } else {
+            binding.btnNext.setText("رفع الملفات");
+            upload = true;
+        }
+    }
+
+    @Override
+    public void OnFragmentInterAction(List<Uri> list) {
+        listGomrok = list;
+        listMap.put("Gomrok", listGomrok);
+    }
+
+    @Override
+    public void OnFragmentTwoInterAction(List<Uri> list) {
+        listFloor = list;
+        listMap.put("Floor", listFloor);
+    }
+
+    @Override
+    public void OnFragmentThreeInterAction(List<Uri> list) {
+        listHayaa = list;
+        listMap.put("Hayaa", listHayaa);
+    }
+
+    @Override
+    public void OnFragmentFourInterAction(List<Uri> list) {
+        listFood = list;
+        listMap.put("Food", listFood);
+    }
+
+    @Override
+    public void OnFragmentFiveInterAction(List<Uri> list) {
+        listAgri = list;
+        listMap.put("Agri", listAgri);
+    }
+
+    @Override
+    public void OnFragmentSixInterAction(List<Uri> list) {
+        listFact = list;
+        listMap.put("Fact", listFact);
+    }
+
+    @Override
+    public void OnFragmentSevenInterAction(List<Uri> list) {
+        listRelease = list;
+        listMap.put("Release", listRelease);
+    }
+
+    @Override
+    public void OnFragmentEightInterAction(List<Uri> list) {
+        listComp = list;
+        listMap.put("Comp", listComp);
+    }
+
+    @Override
+    public void OnFragmentNineInterAction(List<Uri> list) {
+        listBill = list;
+        listMap.put("Bill", listBill);
+    }
+
+    @Override
+    public void OnFragmentTenInterAction(List<Uri> list) {
+        listFoodHealth = list;
+        listMap.put("FoodHealth", listFoodHealth);
+    }
+
+    @Override
+    public void OnFragmentElevenInterAction(List<Uri> list) {
+        listAgriOffers = list;
+        listMap.put("AgriOffers", listAgriOffers);
+    }
+
+    @Override
+    public void OnFragmentTwelveInterAction(List<Uri> list) {
+        listHealth = list;
+        listMap.put("Health", listHealth);
+    }
+
+    private void uploadFilesToStorage(String userKey, Map<String, List<Uri>> map) {
+        int k = 0;
+        StorageReference mReference = sReference.child(mycertificate.getCert_num()
+                + "/");
+        Log.e("Sizes",map.size()+"");
+        for (Map.Entry<String, List<Uri>> entry : map.entrySet()) {
+            final int[] f = {0};
+            for (Uri uri:entry.getValue()) {
+                StorageReference sr = mReference.child(entry.getKey() + "/"
+                        + System.currentTimeMillis() + "." +
+                        Tools.getFileExtn(BrowseFiles.this, uri));
+                int finalK = k;
+                sr.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Modal model = new
+                                Modal(userKey,mycertificate.getCert_num(),
+                                mycertificate.getCert_date(),mycertificate.getComp_name(),
+                                mycertificate.getComp_num(),mycertificate.getCountry(),
+                                mycertificate.getTrans(),mycertificate.isModel_13(),
+                                mycertificate.isChk_fact(),mycertificate.getOffers());
+                        uploadDataToRTDB(model);
+                        f[0]++;
+                        Log.e("Sizes I and J", finalK +"\t"+ f[0]);
+                        Log.e("Sizes List",entry.getValue().size()+"");
+                        if (finalK == map.size()-1 && f[0] == entry.getValue().size()) {
+                            SendMsg();
+                            Toast.makeText(BrowseFiles.this, "تم رفع الملفات بنجاح", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+            }
+            k++;
+        }
+    }
+
+    private void uploadDataToRTDB(Modal model) {
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Database").child("Certificates");
+        reference.child(model.getCert_num()).setValue(model);
+    }
+
+    @Override
+    public void onFileChooseListener(int count) {
+        binding.txtChoosen.setText("تم اختيار " + count + " ملفات");
     }
 
     private void SendMsg() {
@@ -371,197 +537,10 @@ public class BrowseFiles extends AppCompatActivity implements Frag_one.FragmentI
         }
     }
 
-    private void showFragment() {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        Fragment frag = null;
-        switch (fragment_index) {
-            case 1:
-                frag = new Frag_one();
-                break;
-            case 2:
-                frag = new Frag_two();
-                break;
-            case 3:
-                frag = new Frag_three();
-                break;
-            case 4:
-                frag = new Frag_four();
-                break;
-            case 5:
-                frag = new Frag_five();
-                break;
-            case 6:
-                frag = new Frag_six();
-                break;
-            case 7:
-                frag = new Frag_seven();
-                break;
-            case 8:
-                frag = new Frag_eight();
-                break;
-            case 9:
-                frag = new Frag_nine();
-                break;
-            case 10:
-                frag = new Frag_ten();
-                break;
-            case 11:
-                frag = new Frag_eleven();
-                break;
-            case 12:
-                frag = new Frag_twelve();
-                break;
-        }
-        if (frag != null) {
-            ft.replace(R.id.frm, frag);
-            ft.commit();
-        } else {
-            binding.btnNext.setText("رفع الملفات");
-            upload = true;
-        }
-    }
-
-    @Override
-    public void OnFragmentInterAction(List<Uri> list) {
-        listGomrok = list;
-        listMap.put("Gomrok",listGomrok);
-    }
-
-    @Override
-    public void OnFragmentTwoInterAction(List<Uri> list) {
-        listFloor = list;
-        listMap.put("Floor",listFloor);
-    }
-
-    @Override
-    public void OnFragmentThreeInterAction(List<Uri> list) {
-        listHayaa = list;
-        listMap.put("Hayaa",listHayaa);
-    }
-
-    @Override
-    public void OnFragmentFourInterAction(List<Uri> list) {
-        listFood = list;
-        listMap.put("Food",listFood);
-    }
-
-    @Override
-    public void OnFragmentFiveInterAction(List<Uri> list) {
-        listAgri = list;
-        listMap.put("Agri",listAgri);
-    }
-
-    @Override
-    public void OnFragmentSixInterAction(List<Uri> list) {
-        listFact = list;
-        listMap.put("Fact",listFact);
-    }
-
-    @Override
-    public void OnFragmentSevenInterAction(List<Uri> list) {
-        listRelease = list;
-        listMap.put("Release",listRelease);
-    }
-
-    @Override
-    public void OnFragmentEightInterAction(List<Uri> list) {
-        listComp = list;
-        listMap.put("Comp",listComp);
-    }
-
-    @Override
-    public void OnFragmentNineInterAction(List<Uri> list) {
-        listBill = list;
-        listMap.put("Bill",listBill);
-    }
-
-    @Override
-    public void OnFragmentTenInterAction(List<Uri> list) {
-        listFoodHealth = list;
-        listMap.put("FoodHealth",listFoodHealth);
-    }
-
-    @Override
-    public void OnFragmentElevenInterAction(List<Uri> list) {
-        listAgriOffers = list;
-        listMap.put("AgriOffers",listAgriOffers);
-    }
-
-    @Override
-    public void OnFragmentTwelveInterAction(List<Uri> list) {
-        listHealth = list;
-        listMap.put("Health",listHealth);
-    }
-
-    private List<Uri> mergeLists(List<Uri>... lists) {
-        List<Uri> newList = new ArrayList<>();
-        for (List<Uri> list : lists) {
-            newList.addAll(list);
-        }
-        return newList;
-    }
-
-    private void uploadDataToFirebase(String userKey, List<Uri> list) {
-        dialog.startDialog();
-        StorageReference mReference = sReference.child(mycertificate.getCert_num() + "/");
-        urls = new ArrayList<>();
-        for (Uri uri:list) {
-
-            StorageReference sr = mReference.child(System.currentTimeMillis()+"."+
-                    Tools.getFileExtn(BrowseFiles.this,uri));
-            sr.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    sr.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            urls.add(uri.toString());
-                            connection.insertIntoFiles(mycertificate.getCert_num(), uri.toString());
-                            Log.d("lists",urls.size()+"");
-                            Modal modal = new Modal(userKey, mycertificate.getCert_num(),
-                                    mycertificate.getCert_date(), mycertificate.getCert_name(),
-                                    mycertificate.getComp_num(), mycertificate.getCountry(),
-                                    mycertificate.getTrans(), mycertificate.isModel_13(),
-                                    mycertificate.isChk_fact(), mycertificate.getOffers(), urls);
-
-                            uploadDataToRTDB(modal);
-                            i++;
-                            if (i==list.size()) {
-                                dialog.closeDialog();
-                                Toast.makeText(BrowseFiles.this, "تم رفع الملفات بنجاح", Toast.LENGTH_SHORT).show();
-                                SendMsg();
-                            }
-                        }
-                    });
-                }
-            })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            dialog.closeDialog();
-                            Toast.makeText(BrowseFiles.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-    }
-
-    private void uploadDataToRTDB(Modal model) {
-        DatabaseReference reference = FirebaseDatabase.getInstance()
-                .getReference("Database").child("Certificates");
-        reference.child(model.getCert_num()).setValue(model);
-    }
-
-    @Override
-    public void onFileChooseListener(int count) {
-        binding.txtChoosen.setText("تم اختيار " + count + " ملفات");
-        //Toast.makeText(this, count+"", Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(BrowseFiles.this,userOpt.class);
+        Intent intent = new Intent(BrowseFiles.this, userOpt.class);
         startActivity(intent);
         finish();
     }
