@@ -25,9 +25,9 @@ public class contactUs extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setData(Uri.parse("mailto:"+binding.txtMail.getText()));
+                intent.setData(Uri.parse("mailto:"));
                 intent.setType("text/plain");
-                intent.putExtra(Intent.EXTRA_EMAIL,binding.txtMail.getText());
+                intent.putExtra(Intent.EXTRA_EMAIL,new String[]{"alkodss.freight@gmail.com"});
                 startActivity(intent);
             }
         });
