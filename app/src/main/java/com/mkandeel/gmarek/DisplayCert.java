@@ -27,6 +27,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
@@ -46,6 +52,7 @@ public class DisplayCert extends AppCompatActivity {
 
     private ActivityDisplayCertBinding binding;
     private String cert_num;
+    private Certificate cert;
 
 
     @Override
@@ -57,7 +64,7 @@ public class DisplayCert extends AppCompatActivity {
         if (Tools.isNetworkAvailable(this)) {
 
             //list = getIntent().getStringArrayListExtra("urls");
-            Certificate certificate = getIntent().getParcelableExtra("cert_list");
+            Certificate certificate = getIntent().getParcelableExtra("cert_data");
 
             if (certificate != null) {
                 binding.txtViewCertnum.setText(certificate.getCert_num());
@@ -75,9 +82,12 @@ public class DisplayCert extends AppCompatActivity {
                 cert_num = certificate.getCert_num();
 
             } else {
-                Toast.makeText(getApplicationContext(), "خطأ في جلب بيانات الشهادة...\nتواصل مع المديرين في حالة استمرار الخطأ", Toast.LENGTH_SHORT)
-                        .show();
+                cert_num = getIntent().getExtras().getString("cert_num");
+
+                getCertDataFromRTDB();
             }
+
+
 
 
             binding.btnDownload.setOnClickListener(new View.OnClickListener() {
@@ -99,7 +109,7 @@ public class DisplayCert extends AppCompatActivity {
                     }*/
                     Intent intent = new Intent(DisplayCert.this,DownloadFiles.class);
                     intent.putExtra("cert_num",cert_num);
-                    intent.putExtra("cert_data",certificate);
+                    intent.putExtra("cert_data",cert);
                     startActivity(intent);
                     finish();
                 }
@@ -107,6 +117,53 @@ public class DisplayCert extends AppCompatActivity {
         } else {
             Tools.showDialog(this);
         }
+    }
+
+    private void getCertDataFromRTDB() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Database")
+                .child("Certificates");
+        Query query = reference.orderByChild("cert_num")
+                .equalTo(cert_num);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        cert = ds.getValue(Certificate.class);
+                    }
+                    if (cert!= null) {
+                        binding.txtViewCertnum.setText(cert.getCert_num());
+                        binding.txtViewCertdate.setText(cert.getCert_date());
+                        binding.txtViewCompname.setText(cert.getComp_name());
+                        binding.txtViewCompnum.setText(cert.getComp_num());
+                        binding.txtViewCountry.setText(cert.getCountry());
+                        binding.txtViewTrans.setText(cert.getTrans());
+                        binding.txtViewOffers.setText(cert.getOffers());
+                        String model13 = (cert.isModel_13()) ? "نعم" : "لا";
+                        String fact = (cert.isChk_fact()) ? "نعم" : "لا";
+                        binding.txtViewModel13.setText(model13);
+                        binding.txtViewBuildfact.setText(fact);
+                        binding.btnDownload.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(DisplayCert.this,DownloadFiles.class);
+                                intent.putExtra("cert_num",cert_num);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+
+                    }
+                } else {
+                    Toast.makeText(DisplayCert.this, "لا يوجد ملفات لهذه الشهادة", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override

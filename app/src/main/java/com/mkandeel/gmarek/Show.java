@@ -135,12 +135,12 @@ public class Show extends AppCompatActivity {
             adapter.setOnClickListener(new showAdapter.ItemClicked() {
                 @Override
                 public void onItemClickListener(String str, int position) {
-                    Certificate cert = connection.getCertData(str);
+                    //Certificate cert = connection.getCertData(str);
                     //download_urls = connection.getFilesForCert(str);
                     //intent.putStringArrayListExtra("urls", download_urls);
                     Intent intent = new Intent(Show.this, DisplayCert.class);
-                    intent.putExtra("num", str);
-                    intent.putExtra("cert_list", cert);
+                    intent.putExtra("cert_num", str);
+                    //intent.putExtra("cert_list", cert);
                     startActivity(intent);
                     finish();
                 }
@@ -166,11 +166,11 @@ public class Show extends AppCompatActivity {
                         /*Intent mIntent = new Intent(Show.this,BrowseFiles.class);
                         mIntent.putExtra("cert_num",str);
                         startActivity(mIntent);*/
-                        Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        mIntent.setType("*/*");
-                        mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                        //Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                        //mIntent.setType("*/*");
+                        //mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                         addModelOrFact = false;
-                        arl.launch(mIntent);
+                        //arl.launch(mIntent);
                     } else {
                         //deleteCertByNum(str,index);
                     }

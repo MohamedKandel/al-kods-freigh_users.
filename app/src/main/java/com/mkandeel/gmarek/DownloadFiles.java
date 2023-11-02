@@ -316,7 +316,8 @@ public class DownloadFiles extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         Intent intent = new Intent(DownloadFiles.this, DisplayCert.class);
-        intent.putExtra("cert_list", certificate);
+        intent.putExtra("cert_data", certificate);
+        intent.putExtra("cert_num",cert_num);
         startActivity(intent);
         finish();
     }
