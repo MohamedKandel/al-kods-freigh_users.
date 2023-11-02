@@ -2,6 +2,7 @@ package com.mkandeel.gmarek;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,10 +21,11 @@ public class contactUs extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         binding.txtMail.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("IntentReset")
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setData(Uri.parse("mailto:"));
+                intent.setData(Uri.parse("mailto:"+binding.txtMail.getText()));
                 intent.setType("text/plain");
                 intent.putExtra(Intent.EXTRA_EMAIL,binding.txtMail.getText());
                 startActivity(intent);
