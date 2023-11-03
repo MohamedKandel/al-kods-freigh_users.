@@ -39,6 +39,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mkandeel.gmarek.NotificationHandler.ApiUtils;
@@ -126,61 +127,99 @@ public class Show extends AppCompatActivity {
             );
             /////////////////////////////////////////////////////////////////////
             //SearchForCertificates(UUID);
-            list = connection.getCustomCertData();
+            //list = connection.getCustomCertData();
+            list = new ArrayList<>();
+            String UUID = connection.getUserID();
+            searchCertificates(UUID);
 
-            adapter = new showAdapter(list, getApplicationContext());
-            binding.rvCert.setAdapter(adapter);
-            binding.rvCert.setLayoutManager(new LinearLayoutManager(Show.this));
-            ///////////////////////////////////////////////////////////////////////
-            adapter.setOnClickListener(new showAdapter.ItemClicked() {
+            flistener = new FirebaseCompleteListener() {
                 @Override
-                public void onItemClickListener(String str, int position) {
-                    //Certificate cert = connection.getCertData(str);
-                    //download_urls = connection.getFilesForCert(str);
-                    //intent.putStringArrayListExtra("urls", download_urls);
-                    Intent intent = new Intent(Show.this, DisplayCert.class);
-                    intent.putExtra("cert_num", str);
-                    //intent.putExtra("cert_list", cert);
-                    startActivity(intent);
-                    finish();
-                }
+                public void onComplete(List<customModel> list) {
+                    adapter = new showAdapter(list, getApplicationContext());
+                    binding.rvCert.setAdapter(adapter);
+                    binding.rvCert.setLayoutManager(new LinearLayoutManager(Show.this));
+                    ///////////////////////////////////////////////////////////////////////
+                    adapter.setOnClickListener(new showAdapter.ItemClicked() {
+                        @Override
+                        public void onItemClickListener(String str, int position) {
+                            //Certificate cert = connection.getCertData(str);
+                            //download_urls = connection.getFilesForCert(str);
+                            //intent.putStringArrayListExtra("urls", download_urls);
+                            Intent intent = new Intent(Show.this, DisplayCert.class);
+                            intent.putExtra("cert_num", str);
+                            //intent.putExtra("cert_list", cert);
+                            startActivity(intent);
+                            finish();
+                        }
 
-                @Override
-                public void onItemLongClickListener(String str, int itemId, int index) {
-                    mystr = str;
-                    if (itemId == R.id.add_13) {
-                        Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        mIntent.setType("*/*");
-                        mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                        arl.launch(mIntent);
-                        addModelOrFact = true;
-                        isModel13 = true;
-                    } else if (itemId == R.id.add_fact) {
-                        Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        mIntent.setType("*/*");
-                        mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                        arl.launch(mIntent);
-                        addModelOrFact = true;
-                        isModel13 = false;
-                    } else if (itemId == R.id.edit_files) {
-                        /*Intent mIntent = new Intent(Show.this,BrowseFiles.class);
-                        mIntent.putExtra("cert_num",str);
-                        startActivity(mIntent);*/
-                        //Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        //mIntent.setType("*/*");
-                        //mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                        addModelOrFact = false;
-                        //arl.launch(mIntent);
-                    } else {
-                        //deleteCertByNum(str,index);
-                    }
+                        @Override
+                        public void onItemLongClickListener(String str, int itemId, int index) {
+                            mystr = str;
+                            if (itemId == R.id.add_13) {
+                                Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                                mIntent.setType("*/*");
+                                mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                                arl.launch(mIntent);
+                                addModelOrFact = true;
+                                isModel13 = true;
+                            } else if (itemId == R.id.add_fact) {
+                                Intent mIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                                mIntent.setType("*/*");
+                                mIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                                arl.launch(mIntent);
+                                addModelOrFact = true;
+                                isModel13 = false;
+                            } else if (itemId == R.id.edit_files) {
+                                Intent intent = new Intent(Show.this,UploadExtras.class);
+                                intent.putExtra("cert_num",mystr);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                    });
                 }
-            });
+            };
+
+
 
 
         } else {
             Tools.showDialog(this);
         }
+    }
+
+    private FirebaseCompleteListener flistener;
+
+    private void searchCertificates(String UUID) {
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("Database").child("Certificates");
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds: snapshot.getChildren()) {
+                        Certificate certificate = ds.getValue(Certificate.class);
+                        if (certificate != null) {
+                            if (certificate.getUserKey().equals(UUID)) {
+                                customModel model = new customModel(certificate.getCert_num(),
+                                        certificate.getCert_date(),certificate.getTrans());
+                                list.add(model);
+                            }
+                        }
+                    }
+                    flistener.onComplete(list);
+
+                    //Log.e("Data in RTDB","found");
+                } else {
+                    Toast.makeText(Show.this, "لايوجد أي شهادات حتى الآن", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Data in RTDB",error.getMessage());
+            }
+        });
     }
 
     private void AddDataToCert(String cert_num, boolean isModel13, boolean value) {
@@ -265,9 +304,9 @@ public class Show extends AppCompatActivity {
                         uploadExtrasToStorage(cert_num, mlist);
                     }
                 });
-    }
+    }*/
 
-    @SuppressLint("NotifyDataSetChanged")
+    /*@SuppressLint("NotifyDataSetChanged")
     private void deleteCertByNum(String cert_num, int index) {
         //dialog.startDialog();
         connection.deleteCertificate(cert_num);
@@ -277,46 +316,41 @@ public class Show extends AppCompatActivity {
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Database")
                 .child("Certificates");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        Modal modal = ds.getValue(Modal.class);
-                        if (modal != null) {
-                            if (modal.getCert_num().equals(cert_num)) {
-                                //mUrls = modal.getList();
-                            }
-                        }
-                    }
-                    if (mUrls.size() > 0) {
-                        for (String url : mUrls) {
-                            StorageReference sr = FirebaseStorage.getInstance()
-                                    .getReferenceFromUrl(url);
-                            sr.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            reference.child(cert_num).removeValue();
-                                            //Toast.makeText(Show.this, "تم الحذف من ال storage", Toast.LENGTH_SHORT).show();
+        reference.child(cert_num).removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        StorageReference sr = FirebaseStorage.getInstance()
+                                .getReference("Certificates");
+                        sr.child(cert_num).listAll()
+                                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                                    @Override
+                                    public void onSuccess(ListResult listResult) {
+                                        List<StorageReference> lreference =
+                                                listResult.getItems();
+                                        for (StorageReference item : lreference) {
+                                            item.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                                                @Override
+                                                public void onSuccess(ListResult listResult) {
+                                                    List<StorageReference> mlist =
+                                                            listResult.getItems();
+                                                    for (StorageReference storage : mlist) {
+                                                        storage.delete();
+                                                    }
+                                                }
+                                            });
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(Show.this, "حدث خطأ", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
+                                    }
+                                });
                     }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-
-    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("onDelete",e.getMessage());
+                    }
+                });
+    }*/
 
     /*private void uploadExtrasToStorage(String cert_num, List<Uri> list) {
         dialog.startDialog();

@@ -67,4 +67,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
     implementation ("androidx.preference:preference:1.2.1")
+    //sdp and ssp
+    implementation ("com.intuit.ssp:ssp-android:1.1.0")
 }

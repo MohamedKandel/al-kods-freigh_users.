@@ -48,12 +48,9 @@ import java.util.function.Consumer;
 
 public class DisplayCert extends AppCompatActivity {
 
-
-
     private ActivityDisplayCertBinding binding;
     private String cert_num;
     private Certificate cert;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +80,6 @@ public class DisplayCert extends AppCompatActivity {
 
             } else {
                 cert_num = getIntent().getExtras().getString("cert_num");
-
                 getCertDataFromRTDB();
             }
 
@@ -94,19 +90,6 @@ public class DisplayCert extends AppCompatActivity {
                 @SuppressLint("UnspecifiedRegisterReceiverFlag")
                 @Override
                 public void onClick(View v) {
-                    /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-                        Download(list, Objects.requireNonNull(getIntent().getExtras()).getString("num"));
-                    } else {
-                        if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                                PackageManager.PERMISSION_GRANTED) {
-                            registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-                            Download(list, Objects.requireNonNull(getIntent().getExtras()).getString("num"));
-                        } else {
-                            requestStoragePermission();
-                        }
-                    }*/
                     Intent intent = new Intent(DisplayCert.this,DownloadFiles.class);
                     intent.putExtra("cert_num",cert_num);
                     intent.putExtra("cert_data",cert);
